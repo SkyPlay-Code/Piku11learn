@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10-Day Humanities Sprint • Live Command Center</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Canvas Confetti for Milestone Celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Space Grotesk"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-obsidian: #07090E;
+    }
+
+    body {
+      background-color: var(--bg-obsidian);
+      color: #F8FAFC;
+      overflow-x: hidden;
+    }
+
+    /* Subtle Dot Matrix Background */
+    .bg-grid-pattern {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* Floating Ambient Aurora Animation */
+    @keyframes floatSlow {
+      0%, 100% { transform: translate(0px, 0px) scale(1); }
+      33% { transform: translate(30px, -40px) scale(1.08); }
+      66% { transform: translate(-25px, 25px) scale(0.95); }
+    }
+    .aurora-orb-1 {
+      animation: floatSlow 18s ease-in-out infinite;
+    }
+    .aurora-orb-2 {
+      animation: floatSlow 22s ease-in-out infinite reverse;
+    }
+
+    /* Liquid Shimmer inside Progress Bar */
+    @keyframes shimmerSweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .shimmer-bar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+      animation: shimmerSweep 2.4s infinite;
+    }
+
+    /* Smooth Accordion Height Transition using CSS Grid */
+    .accordion-wrapper {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .accordion-wrapper.open {
+      grid-template-rows: 1fr;
+    }
+    .accordion-inner {
+      overflow: hidden;
+    }
+
+    /* Spring Pop Animation for Custom Checkbox */
+    @keyframes checkPop {
+      0% { transform: scale(0.8); }
+      50% { transform: scale(1.22); }
+      100% { transform: scale(1); }
+    }
+    .check-pop {
+      animation: checkPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Animated Strike-through Line */
+    .strike-anim {
+      position: relative;
+      display: inline;
+      background-image: linear-gradient(90deg, #94A3B8, #64748B);
+      background-repeat: no-repeat;
+      background-position: 0 55%;
+      background-size: 0% 2px;
+      transition: background-size 0.35s cubic-bezier(0.25, 1, 0.5, 1), color 0.25s ease;
+    }
+    .strike-anim.checked {
+      background-size: 100% 2px;
+      color: #64748B;
+    }
+
+    /* SVG Ring Progress Transition */
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Card Hover Glow */
+    .glass-card {
+      background: rgba(15, 20, 32, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(129, 140, 248, 0.28);
+    }
+  </style>
+</head>
+
+<body class="bg-grid-pattern min-h-screen pb-24 selection:bg-indigo-500 selection:text-white relative">
+
+  <!-- Ambient Floating Aurora Background Orbs -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="aurora-orb-1 absolute -top-32 -left-24 w-96 h-96 rounded-full bg-indigo-600/15 blur-[110px]"></div>
+    <div class="aurora-orb-2 absolute top-1/3 -right-24 w-96 h-96 rounded-full bg-emerald-500/10 blur-[120px]"></div>
+    <div class="aurora-orb-1 absolute -bottom-32 left-1/3 w-80 h-80 rounded-full bg-amber-500/10 blur-[110px]"></div>
+  </div>
+
+  <!-- Sticky Top Command Header -->
+  <header class="sticky top-0 z-40 bg-[#07090E]/85 backdrop-blur-xl border-b border-white/10 shadow-2xl">
+    <div class="max-w-4xl mx-auto px-4 py-3.5">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-2.5">
+        <!-- Brand & Live Badge -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-amber-500 p-[1px] shadow-lg shadow-indigo-500/20">
+            <div class="w-full h-full bg-[#0B0F19] rounded-[11px] flex items-center justify-center text-lg">
+              ⚡
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h1 class="font-display font-bold text-base sm:text-lg tracking-tight text-white">
+                HUMANITIES SPRINT <span class="text-indigo-400 font-mono text-xs px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">CLASS XI</span>
+              </h1>
+              <!-- Real-time Sync Status Pill -->
+              <span id="sync-status" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/25">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                Connecting...
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Top Progress Readout -->
+        <div class="flex items-center gap-3 ml-auto">
+          <div id="rank-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+            <span>🏛️</span> <span id="rank-title">Novice Scribe</span>
+          </div>
+          <div class="font-mono text-xs sm:text-sm font-bold px-3 py-1 rounded-lg bg-indigo-500/15 text-indigo-300 border border-indigo-500/30" id="progress-text">
+            0/30 tasks done - 0%
+          </div>
+        </div>
+      </div>
+
+      <!-- Liquid Shimmer Progress Bar -->
+      <div class="relative w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-white/10">
+        <div id="progress-bar" class="shimmer-bar relative h-full w-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 transition-all duration-500 ease-out shadow-[0_0_16px_rgba(99,102,241,0.6)]"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="relative z-10 max-w-4xl mx-auto px-4 mt-6">
+
+    <!-- Firebase Setup Warning Banner (Automatically hides once configured) -->
+    <div id="config-warning" class="hidden mb-6 p-4 rounded-2xl bg-amber-950/50 border border-amber-500/40 text-amber-200 text-xs sm:text-sm backdrop-blur-md">
+      <div class="flex items-start gap-3">
+        <span class="text-xl">🛠️</span>
+        <div>
+          <p class="font-display font-bold text-amber-100 text-sm mb-1">Firebase Live Sync Not Configured Yet (Running in Local Preview Mode)</p>
+          <p class="text-amber-200/80 leading-relaxed">
+            To let your friend or mentor see your checked tasks live on their own device, paste your <code class="font-mono bg-amber-900/60 px-1.5 py-0.5 rounded text-amber-100">firebaseConfig</code> inside <code class="font-mono bg-amber-900/60 px-1.5 py-0.5 rounded text-amber-100">index.html</code> (follow the 2-step comment at the bottom of the code).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENTO COMMAND CENTER -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+      
+      <!-- Card 1: Animated Circular Mastery Ring + XP Status (5 cols) -->
+      <div class="md:col-span-5 glass-card rounded-2xl p-5 flex items-center gap-5 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <!-- SVG Radial Ring -->
+        <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+          <svg class="w-24 h-24" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.07)" stroke-width="8" fill="transparent" />
+            <circle
+              id="radial-ring"
+              class="progress-ring-circle"
+              cx="50" cy="50" r="42"
+              stroke="url(#ringGradient)"
+              stroke-width="8"
+              stroke-linecap="round"
+              fill="transparent"
+              stroke-dasharray="263.89"
+              stroke-dashoffset="263.89"
+            />
+            <defs>
+              <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#818CF8" />
+                <stop offset="50%" stop-color="#C084FC" />
+                <stop offset="100%" stop-color="#34D399" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="ring-percent" class="font-mono font-bold text-xl text-white">0%</span>
+            <span class="text-[10px] uppercase tracking-wider text-slate-400">Mastery</span>
+          </div>
+        </div>
+
+        <!-- XP & Campaign Stats -->
+        <div class="flex-1 min-w-0">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-indigo-400 mb-0.5">10-Day Exam War Room</div>
+          <h2 id="hero-status-title" class="font-display font-bold text-lg text-white truncate">Ready for Launch</h2>
+          <p id="hero-xp-readout" class="font-mono text-xs text-emerald-400 mt-1">0 / 3,000 XP Earned</p>
+          <div class="mt-3 flex items-center gap-2 text-xs text-slate-400">
+            <span id="days-conquered-pill" class="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 font-mono text-slate-300">0/10 Days Cleared</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Subject Breakdown Telemetry (7 cols) -->
+      <div class="md:col-span-7 glass-card rounded-2xl p-5 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Subject Mastery Telemetry</span>
+          <span class="text-[11px] text-slate-400">Live Subject Split</span>
+        </div>
+        <div id="subject-telemetry" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 10-DAY QUEST MAP TIMELINE -->
+    <section class="glass-card rounded-2xl p-4 mb-6">
+      <div class="flex items-center justify-between mb-2.5">
+        <span class="text-xs font-mono uppercase tracking-wider text-slate-400">10-Day Sprint Quest Map (Click to Jump)</span>
+        <div class="flex gap-2">
+          <button id="expand-all-btn" class="text-xs font-medium px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition active:scale-95">
+            Expand All
+          </button>
+          <button id="collapse-all-btn" class="text-xs font-medium px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition active:scale-95">
+            Collapse All
+          </button>
+        </div>
+      </div>
+      <div id="quest-map" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+        <!-- Populated dynamically by JS -->
+      </div>
+    </section>
+
+    <!-- DAILY ACCORDION CARDS -->
+    <div id="days-container" class="space-y-4"></div>
+
+  </main>
+
+  <!-- Firebase & Application Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    /* =========================================================================
+       FIREBASE SETUP INSTRUCTIONS (2 EASY STEPS):
+       
+       Step 1: Go to https://console.firebase.google.com/ -> Create a project ->
+               Build -> Realtime Database -> Create Database.
+               Open the "Rules" tab in Realtime Database and set read/write to true:
+               {
+                 "rules": {
+                   ".read": true,
+                   ".write": true
+                 }
+               }
+               Click "Publish".
+
+       Step 2: Go to Project Settings (gear icon) -> General -> Your apps -> Web App (</>)
+               Copy your firebaseConfig values and replace the placeholders below:
+       ========================================================================= */
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyA3YVWfgnS902-dQ2U0FCvQ3b0PkJOwmUg",
+    authDomain: "piku10learn.firebaseapp.com",
+    databaseURL: "https://piku10learn-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "piku10learn",
+    storageBucket: "piku10learn.firebasestorage.app",
+    messagingSenderId: "670272825121",
+    appId: "1:670272825121:web:f42c2c6c4d9fcbe49c8060"
+  };
+
+    // Full 10-Day Class 11 Curriculum Data
+    const scheduleData = [
+      {
+        day: 1,
+        title: "Day 1: Core Foundations",
+        subtitle: "Mongol Steppe & Constitutional Roots",
+        tasks: [
+          { id: "d1_t1", subject: "History", text: "Finish Nomadic Empires (Genghis Khan - focus on Yasa, Yam, Army)" },
+          { id: "d1_t2", subject: "Pol Sci", text: "Ch 1 & Ch 2 (Constitution: Why & How, Rights in Constitution)" },
+          { id: "d1_t3", subject: "English", text: "Practice 1 Writing Format" }
+        ]
+      },
+      {
+        day: 2,
+        title: "Day 2: Democracy & Geo Kickoff",
+        subtitle: "Elections, Executive & Sanskrit Unseen",
+        tasks: [
+          { id: "d2_t1", subject: "Pol Sci", text: "Ch 3 & Ch 4 (Election & Representation, Executive)" },
+          { id: "d2_t2", subject: "Geo", text: "Finish 1 pending chapter" },
+          { id: "d2_t3", subject: "Sanskrit", text: "1 Unseen passage practice + Letter format" }
+        ]
+      },
+      {
+        day: 3,
+        title: "Day 3: Pillars of State",
+        subtitle: "Parliament, Courts & Second Geo Chapter",
+        tasks: [
+          { id: "d3_t1", subject: "Pol Sci", text: "Ch 5 & Ch 6 (Legislature, Judiciary)" },
+          { id: "d3_t2", subject: "Geo", text: "Finish 2nd pending chapter" },
+          { id: "d3_t3", subject: "English", text: "Practice 1 Writing Format" }
+        ]
+      },
+      {
+        day: 4,
+        title: "Day 4: Geo Completion Milestone",
+        subtitle: "Federalism, Local Bodies & Chitra Varnanam",
+        milestone: "🌍 Geo Syllabus Complete!",
+        tasks: [
+          { id: "d4_t1", subject: "Pol Sci", text: "Ch 7 & Ch 8 (Federalism, Local Governments)" },
+          { id: "d4_t2", subject: "Geo", text: "Finish 3rd pending chapter (Geo Syllabus Complete!)" },
+          { id: "d4_t3", subject: "Sanskrit", text: "Chitra Varnanam practice" }
+        ]
+      },
+      {
+        day: 5,
+        title: "Day 5: Political Theory & History Blitz",
+        subtitle: "Freedom, Rapid History Revision & Article Writing",
+        tasks: [
+          { id: "d5_t1", subject: "Pol Sci", text: "Ch 9 & Ch 10 (Political Theory Intro, Freedom)" },
+          { id: "d5_t2", subject: "History", text: "Rapid revise Ch 1 & Ch 2" },
+          { id: "d5_t3", subject: "English", text: "Sample article/report writing" }
+        ]
+      },
+      {
+        day: 6,
+        title: "Day 6: Pol Sci Completion Milestone",
+        subtitle: "Equality, Social Justice & First Geo Revision Block",
+        milestone: "⚖️ Pol Sci Complete!",
+        tasks: [
+          { id: "d6_t1", subject: "Pol Sci", text: "Ch 11 & Ch 12 (Equality, Social Justice) (Pol Sci Complete!)" },
+          { id: "d6_t2", subject: "Geo", text: "Revise first 4 completed chapters" },
+          { id: "d6_t3", subject: "Sanskrit", text: "Read Hindi summary of 2 chapters" }
+        ]
+      },
+      {
+        day: 7,
+        title: "Day 7: High-Weightage Q&A Mastery",
+        subtitle: "4-Mark & 6-Mark Deep Dive + Nomadic Empires",
+        tasks: [
+          { id: "d7_t1", subject: "Pol Sci", text: "Indian Constitution 4-mark & 6-mark questions revision" },
+          { id: "d7_t2", subject: "Geo", text: "Revise next 4 chapters" },
+          { id: "d7_t3", subject: "History", text: "Revise Ch 3 + Nomadic Empires key questions" }
+        ]
+      },
+      {
+        day: 8,
+        title: "Day 8: Concepts, Maps & Grammar",
+        subtitle: "Theory Definitions, Final Geo Chapters & Sanskrit",
+        tasks: [
+          { id: "d8_t1", subject: "Pol Sci", text: "Political Theory concepts & definitions revision" },
+          { id: "d8_t2", subject: "Geo", text: "Revise last 4 chapters + map practice" },
+          { id: "d8_t3", subject: "Sanskrit", text: "Hindi summary of remaining chapters + simple grammar" }
+        ]
+      },
+      {
+        day: 9,
+        title: "Day 9: Precision Answer Structuring",
+        subtitle: "Poetic Devices, Historical Maps & Sample Outlines",
+        tasks: [
+          { id: "d9_t1", subject: "English", text: "Review poetic devices and formats" },
+          { id: "d9_t2", subject: "History", text: "Map practice & timeline check" },
+          { id: "d9_t3", subject: "Pol Sci", text: "Outline answers for 5 sample questions" }
+        ]
+      },
+      {
+        day: 10,
+        title: "Day 10: Final Polish & Calm Mind",
+        subtitle: "Format Review, Key Terms Glance & Rest",
+        milestone: "🏆 Sprint Finish Line",
+        tasks: [
+          { id: "d10_t1", subject: "Sanskrit", text: "Review all formats (Letter, Unseen, Picture)" },
+          { id: "d10_t2", subject: "Pol Sci & Geo", text: "Quick glance over short notes & key terms" },
+          { id: "d10_t3", subject: "General", text: "Pack bag, relax, sleep on time" }
+        ]
+      }
+    ];
+
+    // Subject Styling & Metadata
+    const subjectMeta = {
+      "Pol Sci": {
+        icon: "⚖️",
+        badge: "bg-indigo-500/15 text-indigo-300 border-indigo-500/35",
+        bar: "bg-indigo-400"
+      },
+      "History": {
+        icon: "🏺",
+        badge: "bg-amber-500/15 text-amber-300 border-amber-500/35",
+        bar: "bg-amber-400"
+      },
+      "Geo": {
+        icon: "🌍",
+        badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/35",
+        bar: "bg-emerald-400"
+      },
+      "Sanskrit": {
+        icon: "🕉️",
+        badge: "bg-rose-500/15 text-rose-300 border-rose-500/35",
+        bar: "bg-rose-400"
+      },
+      "English": {
+        icon: "✒️",
+        badge: "bg-sky-500/15 text-sky-300 border-sky-500/35",
+        bar: "bg-sky-400"
+      },
+      "Pol Sci & Geo": {
+        icon: "⚡",
+        badge: "bg-purple-500/15 text-purple-300 border-purple-500/35",
+        bar: "bg-purple-400"
+      },
+      "General": {
+        icon: "🌙",
+        badge: "bg-slate-500/15 text-slate-300 border-slate-500/35",
+        bar: "bg-slate-400"
+      }
+    };
+
+    // State
+    let taskState = {};
+    let lastAnimatedTaskId = null;
+    const openDays = new Set(scheduleData.map(d => d.day));
+
+    // DOM Elements
+    const daysContainer = document.getElementById("days-container");
+    const progressText = document.getElementById("progress-text");
+    const progressBar = document.getElementById("progress-bar");
+    const radialRing = document.getElementById("radial-ring");
+    const ringPercent = document.getElementById("ring-percent");
+    const rankTitle = document.getElementById("rank-title");
+    const heroStatusTitle = document.getElementById("hero-status-title");
+    const heroXpReadout = document.getElementById("hero-xp-readout");
+    const daysConqueredPill = document.getElementById("days-conquered-pill");
+    const subjectTelemetry = document.getElementById("subject-telemetry");
+    const questMap = document.getElementById("quest-map");
+    const syncStatus = document.getElementById("sync-status");
+    const configWarning = document.getElementById("config-warning");
+
+    // Check if Firebase placeholders have been replaced
+    const isFirebaseConfigured =
+      firebaseConfig.apiKey !== "YOUR_API_KEY" &&
+      !firebaseConfig.databaseURL.includes("YOUR_PROJECT_ID");
+
+    let db = null;
+
+    function setSyncBadge(text, mode) {
+      const styles = {
+        live: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+        local: "bg-amber-500/10 text-amber-300 border-amber-500/30",
+        error: "bg-rose-500/10 text-rose-300 border-rose-500/30"
+      };
+      const dotStyles = {
+        live: "bg-emerald-400 animate-pulse",
+        local: "bg-amber-400",
+        error: "bg-rose-400"
+      };
+      syncStatus.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${styles[mode]}`;
+      syncStatus.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${dotStyles[mode]}"></span>${text}`;
+    }
+
+    // Initialize Firebase Realtime Database or Local Preview
+    if (isFirebaseConfigured) {
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        const tasksRef = ref(db, "class11_exam_prep/tasks");
+
+        onValue(
+          tasksRef,
+          (snapshot) => {
+            taskState = snapshot.val() || {};
+            setSyncBadge("Live Sync Active", "live");
+            renderUI();
+          },
+          (error) => {
+            console.error("Firebase Realtime DB Error:", error);
+            setSyncBadge("Sync Error (Check Rules)", "error");
+          }
+        );
+      } catch (err) {
+        console.error("Firebase Init Error:", err);
+        setSyncBadge("Init Error", "error");
+      }
+    } else {
+      configWarning.classList.remove("hidden");
+      setSyncBadge("Local Preview Mode", "local");
+      const saved = localStorage.getItem("class11_exam_prep_fallback");
+      taskState = saved ? JSON.parse(saved) : {};
+      renderUI();
+    }
+
+    // Confetti Burst Helper
+    function triggerConfetti(isBigMilestone = false) {
+      if (typeof confetti !== "function") return;
+      if (isBigMilestone) {
+        confetti({
+          particleCount: 90,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#818CF8", "#34D399", "#FBBF24", "#F43F5E"]
+        });
+      } else {
+        confetti({
+          particleCount: 28,
+          spread: 55,
+          origin: { y: 0.75 },
+          scalar: 0.85,
+          colors: ["#818CF8", "#34D399", "#C084FC"]
+        });
+      }
+    }
+
+    // Toggle Task State
+    window.toggleTask = function (taskId, dayNum) {
+      const newState = !taskState[taskId];
+      taskState[taskId] = newState;
+      lastAnimatedTaskId = taskId;
+
+      // Check if this click just completed the entire day
+      const dayObj = scheduleData.find(d => d.day === dayNum);
+      const isDayNowComplete = dayObj && dayObj.tasks.every(t => taskState[t.id]);
+
+      if (newState) {
+        triggerConfetti(isDayNowComplete);
+      }
+
+      renderUI();
+
+      if (isFirebaseConfigured && db) {
+        const taskItemRef = ref(db, `class11_exam_prep/tasks/${taskId}`);
+        set(taskItemRef, newState).catch((err) => {
+          console.error("Failed to write to Firebase:", err);
+          setSyncBadge("Write Blocked (Rules)", "error");
+        });
+      } else {
+        localStorage.setItem("class11_exam_prep_fallback", JSON.stringify(taskState));
+      }
+    };
+
+    // Toggle Accordion Open/Close smoothly
+    window.toggleDayAccordion = function (dayNum) {
+      const wrapper = document.getElementById(`day-body-${dayNum}`);
+      const chevron = document.getElementById(`day-chevron-${dayNum}`);
+      if (openDays.has(dayNum)) {
+        openDays.delete(dayNum);
+        wrapper?.classList.remove("open");
+        chevron?.classList.remove("rotate-180");
+      } else {
+        openDays.add(dayNum);
+        wrapper?.classList.add("open");
+        chevron?.classList.add("rotate-180");
+      }
+    };
+
+    // Jump to Day from Quest Map
+    window.jumpToDay = function (dayNum) {
+      openDays.add(dayNum);
+      renderUI();
+      const el = document.getElementById(`day-card-${dayNum}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    document.getElementById("expand-all-btn").addEventListener("click", () => {
+      scheduleData.forEach(d => openDays.add(d.day));
+      renderUI();
+    });
+
+    document.getElementById("collapse-all-btn").addEventListener("click", () => {
+      openDays.clear();
+      renderUI();
+    });
+
+    // Determine Scholar Rank Title from Percentage
+    function getScholarRank(pct) {
+      if (pct === 0) return { rank: "Uninitiated Scribe", status: "Ready for Launch" };
+      if (pct < 25) return { rank: "Novice Scribe", status: "Building Momentum" };
+      if (pct < 50) return { rank: "Imperial Chronicler", status: "Foundations Locked" };
+      if (pct < 75) return { rank: "Constitutional Strategist", status: "Mid-Sprint Dominance" };
+      if (pct < 100) return { rank: "Humanities Vanguard", status: "Final Stretch Focus" };
+      return { rank: "Exam Grandmaster 👑", status: "100% Syllabus Conquered!" };
+    }
+
+    // Master UI Render Function
+    function renderUI() {
+      const totalTasks = scheduleData.reduce((acc, d) => acc + d.tasks.length, 0);
+      let completedTasks = 0;
+      let completedDays = 0;
+
+      scheduleData.forEach(d => {
+        const doneCount = d.tasks.filter(t => taskState[t.id]).length;
+        completedTasks += doneCount;
+        if (doneCount === d.tasks.length) completedDays++;
+      });
+
+      const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+      // 1. Update Sticky Top Progress Bar
+      progressText.textContent = `${completedTasks}/${totalTasks} tasks done - ${percentage}%`;
+      progressBar.style.width = `${percentage}%`;
+
+      // 2. Update Circular SVG Mastery Ring & Hero Stats
+      const circumference = 263.89; // 2 * pi * 42
+      const offset = circumference - (percentage / 100) * circumference;
+      radialRing.style.strokeDashoffset = offset;
+      ringPercent.textContent = `${percentage}%`;
+
+      const { rank, status } = getScholarRank(percentage);
+      rankTitle.textContent = rank;
+      heroStatusTitle.textContent = status;
+      heroXpReadout.textContent = `${(completedTasks * 100).toLocaleString()} / ${(totalTasks * 100).toLocaleString()} XP Earned`;
+      daysConqueredPill.textContent = `${completedDays}/10 Days Cleared`;
+
+      // 3. Render Subject Telemetry Mini Cards
+      const coreSubjects = ["Pol Sci", "Geo", "History", "Sanskrit", "English"];
+      subjectTelemetry.innerHTML = coreSubjects.map(subj => {
+        let subjTotal = 0;
+        let subjDone = 0;
+        scheduleData.forEach(d => {
+          d.tasks.forEach(t => {
+            if (t.subject.includes(subj)) {
+              subjTotal++;
+              if (taskState[t.id]) subjDone++;
+            }
+          });
+        });
+        const subjPct = subjTotal > 0 ? Math.round((subjDone / subjTotal) * 100) : 0;
+        const meta = subjectMeta[subj];
+        return `
+          <div class="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col justify-between">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="font-semibold text-slate-200 truncate">${meta.icon} ${subj}</span>
+              <span class="font-mono text-[11px] text-slate-400">${subjDone}/${subjTotal}</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div class="h-full ${meta.bar} rounded-full transition-all duration-500" style="width: ${subjPct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // 4. Render 10-Day Quest Map Nodes
+      questMap.innerHTML = scheduleData.map(d => {
+        const doneCount = d.tasks.filter(t => taskState[t.id]).length;
+        const isComplete = doneCount === d.tasks.length;
+        const isPartial = doneCount > 0 && !isComplete;
+
+        return `
+          <button
+            onclick="jumpToDay(${d.day})"
+            class="group relative flex flex-col items-center justify-center py-2 px-1 rounded-xl border transition-all active:scale-95 ${
+              isComplete
+                ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                : isPartial
+                ? "bg-indigo-500/15 border-indigo-500/40 text-indigo-200"
+                : "bg-white/[0.02] border-white/10 text-slate-400 hover:border-white/25 hover:text-slate-200"
+            }"
+          >
+            <span class="text-[10px] font-mono uppercase tracking-wider opacity-75">Day ${d.day}</span>
+            <span class="font-mono font-bold text-xs mt-0.5">
+              ${isComplete ? "★ 3/3" : `${doneCount}/${d.tasks.length}`}
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      // 5. Render Daily Accordion Cards
+      daysContainer.innerHTML = scheduleData.map(dayObj => {
+        const dayTotal = dayObj.tasks.length;
+        const dayDone = dayObj.tasks.filter(t => taskState[t.id]).length;
+        const isDayComplete = dayDone === dayTotal;
+        const isOpen = openDays.has(dayObj.day);
+
+        const tasksHTML = dayObj.tasks.map(task => {
+          const isChecked = !!taskState[task.id];
+          const meta = subjectMeta[task.subject] || subjectMeta["General"];
+          const shouldPop = lastAnimatedTaskId === task.id;
+
+          return `
+            <div
+              onclick="toggleTask('${task.id}', ${dayObj.day})"
+              role="checkbox"
+              aria-checked="${isChecked}"
+              tabindex="0"
+              onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleTask('${task.id}', ${dayObj.day});}"
+              class="group flex items-start gap-3.5 p-3.5 rounded-xl cursor-pointer select-none transition-all duration-200 border ${
+                isChecked
+                  ? "bg-slate-900/35 border-white/[0.05] opacity-75"
+                  : "bg-[#111726]/90 hover:bg-[#161F33] border-white/[0.08] hover:border-indigo-500/35 hover:translate-x-1 shadow-sm"
+              }"
+            >
+              <!-- Custom Animated Checkbox -->
+              <div class="relative flex items-center justify-center mt-0.5 shrink-0">
+                <div class="w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                  shouldPop ? "check-pop" : ""
+                } ${
+                  isChecked
+                    ? "bg-gradient-to-br from-indigo-500 to-emerald-400 border-transparent text-slate-950 shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+                    : "border-slate-600 group-hover:border-indigo-400 bg-slate-950/80"
+                }">
+                  <svg class="w-3.5 h-3.5 ${isChecked ? "opacity-100 scale-100" : "opacity-0 scale-50"} transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Subject Pill & Strike-through Task Description -->
+              <div class="flex-1 text-sm sm:text-[15px] leading-relaxed">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 mr-2 text-xs font-semibold rounded-md border ${meta.badge}">
+                  <span>${meta.icon}</span>
+                  <span>${task.subject}</span>
+                </span>
+                <span class="strike-anim ${isChecked ? "checked" : "text-slate-100"}">
+                  ${task.text}
+                </span>
+              </div>
+
+              <!-- XP Tag -->
+              <span class="hidden sm:inline-block font-mono text-[11px] px-2 py-0.5 rounded bg-white/[0.03] text-slate-400 shrink-0">
+                ${isChecked ? "+100 XP" : "100 XP"}
+              </span>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <section
+            id="day-card-${dayObj.day}"
+            class="glass-card rounded-2xl overflow-hidden transition-all ${
+              isDayComplete
+                ? "border-emerald-500/40 shadow-[0_0_30px_-10px_rgba(16,185,129,0.25)]"
+                : ""
+            }"
+          >
+            <!-- Accordion Header -->
+            <button
+              onclick="toggleDayAccordion(${dayObj.day})"
+              class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/[0.02] transition"
+            >
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm shrink-0 transition-colors ${
+                  isDayComplete
+                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                    : dayDone > 0
+                    ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                    : "bg-white/5 text-slate-300 border border-white/10"
+                }">
+                  ${isDayComplete ? "✓" : `D${dayObj.day}`}
+                </div>
+
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="font-display font-bold text-base sm:text-lg ${
+                      isDayComplete ? "text-emerald-300" : "text-white"
+                    }">
+                      ${dayObj.title}
+                    </h2>
+                    ${
+                      dayObj.milestone
+                        ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">${dayObj.milestone}</span>`
+                        : ""
+                    }
+                  </div>
+                  <p class="text-xs text-slate-400 truncate mt-0.5">${dayObj.subtitle}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 shrink-0 ml-2">
+                <span class="font-mono text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  isDayComplete
+                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                    : "bg-white/5 text-slate-400 border border-white/10"
+                }">
+                  ${dayDone}/${dayTotal}
+                </span>
+                <svg
+                  id="day-chevron-${dayObj.day}"
+                  class="w-5 h-5 text-slate-400 transition-transform duration-300 ${
+                    isOpen ? "rotate-180" : ""
+                  }"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+
+            <!-- Smooth CSS Grid Collapsible Task List -->
+            <div id="day-body-${dayObj.day}" class="accordion-wrapper ${isOpen ? "open" : ""}">
+              <div class="accordion-inner">
+                <div class="px-4 pb-4 pt-2 space-y-2.5 border-t border-white/[0.06]">
+                  ${tasksHTML}
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }).join("");
+    }
+  </script>
+</body>
+</html>
